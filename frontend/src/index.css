@@ -17,36 +17,10 @@
 }
 
 /* 
-  MODERN THEME 
-  (A fresh, lighter or alternative dark theme to differentiate from the legacy one)
+  MIDNIGHT THEME 
+  (The Space Blue premium dark theme)
 */
-body.theme-modern {
-  --bg-primary: #f8fafc;
-  --bg-surface: #ffffff;
-  --bg-surface-hover: #f1f5f9;
-  
-  --text-primary: #0f172a;
-  --text-secondary: #334155;
-  --text-muted: #64748b;
-  
-  --accent-primary: #3b82f6; /* Blue instead of purple */
-  --accent-secondary: #0ea5e9;
-  --accent-gradient: linear-gradient(135deg, #3b82f6, #0ea5e9);
-  
-  --border-color: #e2e8f0;
-  
-  --glass-bg: rgba(255, 255, 255, 0.9);
-  --glass-blur: blur(12px);
-  
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-}
-
-/* 
-  LEGACY THEME 
-  (The original deep space, dark purple/blue theme from theme.md)
-*/
-body.theme-legacy {
+body.theme-midnight {
   --bg-primary: #0a0a0f;
   --bg-surface: rgba(255, 255, 255, 0.03);
   --bg-surface-hover: rgba(139, 92, 246, 0.05);
@@ -54,12 +28,17 @@ body.theme-legacy {
   --text-primary: #ffffff;
   --text-secondary: rgba(255, 255, 255, 0.7);
   --text-muted: rgba(255, 255, 255, 0.6);
+  --text-dim: rgba(255, 255, 255, 0.5);
+  --text-subtle: rgba(255, 255, 255, 0.4);
   
   --accent-primary: #6366f1;
   --accent-secondary: #8b5cf6;
+  --accent-violet: #a855f7;
+  --accent-lavender: #a78bfa;
   --accent-gradient: linear-gradient(135deg, #6366f1, #8b5cf6);
   
   --border-color: rgba(139, 92, 246, 0.1);
+  --border-medium: rgba(139, 92, 246, 0.3);
   
   --glass-bg: rgba(10, 10, 15, 0.85);
   --glass-blur: blur(20px);
@@ -69,9 +48,17 @@ body.theme-legacy {
   cursor: none !important; /* Original theme used custom cursor */
 }
 
-body.theme-legacy a, 
-body.theme-legacy button {
+body.theme-midnight a, 
+body.theme-midnight button {
   cursor: none !important;
+}
+
+/* 
+  LEGACY THEME 
+  (The original clone - handled mainly by noovosoft.css)
+*/
+body.theme-legacy {
+  /* It relies entirely on noovosoft.css */
 }
 
 body {
@@ -97,24 +84,42 @@ html {
 
 /* Theme Toggle Button Style */
 .theme-toggle-btn {
-  background: var(--accent-gradient);
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 999999;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
   color: #fff;
   border: none;
-  padding: 8px 16px;
-  border-radius: var(--radius-pill);
+  padding: 12px 24px;
+  border-radius: 50px;
   cursor: pointer;
-  font-family: var(--font-body);
-  font-weight: 500;
-  margin-right: 1rem;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
 }
 
 .theme-toggle-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(99, 102, 241, 0.6);
 }
 
-/* Hide Custom Cursor in Modern Theme */
-body.theme-modern .cursor-container {
+.theme-toggle-btn.legacy-mode {
+  background: #ffffff;
+  color: #0f172a;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.theme-toggle-btn.legacy-mode:hover {
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Hide Custom Cursor in Legacy Theme */
+body.theme-legacy .cursor-container {
   display: none !important;
 }

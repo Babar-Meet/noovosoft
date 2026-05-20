@@ -5,6 +5,16 @@ import { useEffect } from 'react';
 // Original CSS (cloned exactly)
 import './noovosoft.css';
 
+// Modern Global CSS
+import './components/CustomCursor.css';
+import './components/Navbar.css';
+
+// Components
+import ThemeToggle from './components/ThemeToggle';
+import CustomCursor from './components/CustomCursor';
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+
 // Pages (These now contain their own header/footer and content from scraping)
 import Home from './pages/Home';
 import Services from './pages/Services';
@@ -30,6 +40,10 @@ function App() {
   return (
     <Router>
       <div className={`app-container ${themeMode}`}>
+        <CustomCursor />
+        {themeMode === 'midnight' && <Navbar />}
+        <ThemeToggle />
+
         {/* We removed the custom Navbar and Footer here because the scraped pages 
             already include them natively, ensuring a 100% perfect visual clone. */}
         <Routes>
@@ -46,6 +60,8 @@ function App() {
           <Route path="/careers" element={<Careers />} />
           <Route path="/contact" element={<Contact />} />
         </Routes>
+
+        {themeMode === 'midnight' && <Footer />}
       </div>
     </Router>
   );

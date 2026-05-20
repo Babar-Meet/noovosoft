@@ -1,6 +1,14 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
+import MidnightCaseStudies from './midnight/MidnightCaseStudies';
 
 const CaseStudies = () => {
+  const themeMode = useSelector((state) => state.theme?.mode || 'original');
+
+  if (themeMode === 'midnight') {
+    return <MidnightCaseStudies />;
+  }
+
   const htmlContent = `<div><header><nav class="navbar navbar-expand-lg navbar-light"><div class="container"><a class="navbar-brand" href="/" data-discover="true"><img alt="Noovosoft Logo" src="/assets/noovosoft-logo-CGcThr_M.svg"></a><button class="navbar-toggler" type="button"><span class="navbar-toggler-icon"></span></button><div class="collapse navbar-collapse " id="navbarSupportedContent"><ul class="navbar-nav ms-auto mb-2 mb-lg-0"><li class="nav-item"><a class="nav-link" href="/about" data-discover="true">About Us</a></li><li class="nav-item"><a class="nav-link" href="/services" data-discover="true">Services</a></li><li class="nav-item"><a class="nav-link" href="/casestudy" data-discover="true">Case Studies</a></li><li class="nav-item"><a class="nav-link" href="/culture" data-discover="true">Culture</a></li><li class="nav-item"><a class="nav-link" href="/career" data-discover="true">Careers</a></li><li class="nav-item"><a class="nav-link" href="/contact" data-discover="true">Get In Touch</a></li></ul></div></div></nav></header><section class="homeBannerWrap"><div class="container"><div class="row align-items-center"><div class="col-md-12 bannerDetail text-center"><nav aria-label="breadcrumb" class="breadcrumWrap"><ol class="breadcrumb"><li class="breadcrumb-item "><a href="/" data-discover="true" style="text-decoration: none;">Home</a></li><li class="breadcrumb-item active" aria-current="page">Case Studies</li></ol></nav><h1 class="mb-0">Crafting Success Stories <br> Through<span> Digital Innovation</span></h1><p class="mt-3 mb-4">Creating solutions that truly connect and deliver impact.</p><a class="linkStyle" href="/contact" data-discover="true">Get in Touch <i class="fa-solid fa-arrow-right"></i></a></div></div></div></section><section class="blackBg caseStudiesBlackBg"><div class="container"><section class="blackBg"><div class="container"><div class="row justify-content-center"><div class="col-md-10"><div class="text-center"><h3 class="pinkHeadStyle">How Did Noovosoft Help</h3><h2 class="headStyle">A Trusted Partner in Accounting Innovation</h2><p class="caseSubHead">At Noovosoft, our approach combines agility, technical
                 expertise, and a commitment to long-term partnerships. We’re
                 dedicated to empowering organizations with high-quality

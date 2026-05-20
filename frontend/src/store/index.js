@@ -3,11 +3,11 @@ import { configureStore, createSlice } from '@reduxjs/toolkit';
 const themeSlice = createSlice({
   name: 'theme',
   initialState: {
-    mode: 'modern', // 'modern' (new design) or 'legacy' (the original dark blue/purple theme)
+    mode: 'midnight', // 'midnight' (new design) or 'legacy' (the original dark blue/purple theme)
   },
   reducers: {
     toggleTheme: (state) => {
-      state.mode = state.mode === 'modern' ? 'legacy' : 'modern';
+      state.mode = state.mode === 'midnight' ? 'legacy' : 'midnight';
     },
     setTheme: (state, action) => {
       state.mode = action.payload;
