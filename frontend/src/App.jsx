@@ -11,6 +11,7 @@ import './components/Navbar.css';
 
 // Components
 import ThemeToggle from './components/ThemeToggle';
+import ScrollToTop from './components/ScrollToTop';
 import CustomCursor from './components/CustomCursor';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -118,13 +119,14 @@ function AppContent() {
   // ---- Scroll to top on route change ----
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+  }, [location.pathname]);
 
   return (
     <div className={`app-container ${themeMode}`}>
       <CustomCursor />
       {!isAdminRoute && themeMode === 'midnight' && <Navbar />}
       {!isAdminRoute && <ThemeToggle />}
+      {!isAdminRoute && <ScrollToTop />}
 
       <Routes>
         {/* Admin Routes */}
