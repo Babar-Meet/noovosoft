@@ -1,0 +1,120 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  /* Common variables */
+  --font-body: 'Inter', sans-serif;
+  --font-display: 'Space Grotesk', sans-serif;
+  
+  --radius-pill: 50px;
+  --radius-card: 16px;
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 
+  MODERN THEME 
+  (A fresh, lighter or alternative dark theme to differentiate from the legacy one)
+*/
+body.theme-modern {
+  --bg-primary: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-surface-hover: #f1f5f9;
+  
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  
+  --accent-primary: #3b82f6; /* Blue instead of purple */
+  --accent-secondary: #0ea5e9;
+  --accent-gradient: linear-gradient(135deg, #3b82f6, #0ea5e9);
+  
+  --border-color: #e2e8f0;
+  
+  --glass-bg: rgba(255, 255, 255, 0.9);
+  --glass-blur: blur(12px);
+  
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* 
+  LEGACY THEME 
+  (The original deep space, dark purple/blue theme from theme.md)
+*/
+body.theme-legacy {
+  --bg-primary: #0a0a0f;
+  --bg-surface: rgba(255, 255, 255, 0.03);
+  --bg-surface-hover: rgba(139, 92, 246, 0.05);
+  
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --text-muted: rgba(255, 255, 255, 0.6);
+  
+  --accent-primary: #6366f1;
+  --accent-secondary: #8b5cf6;
+  --accent-gradient: linear-gradient(135deg, #6366f1, #8b5cf6);
+  
+  --border-color: rgba(139, 92, 246, 0.1);
+  
+  --glass-bg: rgba(10, 10, 15, 0.85);
+  --glass-blur: blur(20px);
+  
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  cursor: none !important; /* Original theme used custom cursor */
+}
+
+body.theme-legacy a, 
+body.theme-legacy button {
+  cursor: none !important;
+}
+
+body {
+  font-family: var(--font-body);
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Basic structural classes that adapt to themes */
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex-grow: 1;
+}
+
+/* Theme Toggle Button Style */
+.theme-toggle-btn {
+  background: var(--accent-gradient);
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-weight: 500;
+  margin-right: 1rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.theme-toggle-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Hide Custom Cursor in Modern Theme */
+body.theme-modern .cursor-container {
+  display: none !important;
+}
