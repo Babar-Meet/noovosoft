@@ -1,0 +1,53 @@
+{
+  "scannedAt": "2026-05-20T20:31:20.212Z",
+  "baseUrl": "https://www.noovosoft.com",
+  "pagesScanned": [
+    "/",
+    "/about",
+    "/services",
+    "/casestudy",
+    "/culture",
+    "/career",
+    "/contact",
+    "/casestudy-details-1",
+    "/casestudy-details-2",
+    "/privacy"
+  ],
+  "forms": [],
+  "apiEndpoints": [],
+  "internalRoutes": [],
+  "jsBundles": [],
+  "summary": {
+    "totalForms": 0,
+    "totalApiEndpoints": 0,
+    "totalInternalRoutes": 0,
+    "totalJsBundles": 0
+  },
+  "recommendedBackendRoutes": [
+    {
+      "method": "POST",
+      "path": "/api/contact",
+      "description": "Contact form submission (name, email, contactNumber, companyName, message, recaptcha)"
+    },
+    {
+      "method": "POST",
+      "path": "/api/career/apply",
+      "description": "Career application form (name, email, phone, resume, coverLetter)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "description": "Health check endpoint"
+    },
+    {
+      "method": "GET",
+      "path": "/api/jobs",
+      "description": "List open job positions"
+    },
+    {
+      "method": "POST",
+      "path": "/api/newsletter",
+      "description": "Newsletter subscription"
+    }
+  ]
+}
