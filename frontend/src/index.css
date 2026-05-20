@@ -86,7 +86,7 @@ html {
 .theme-toggle-btn {
   position: fixed;
   bottom: 2rem;
-  right: 2rem;
+  right: 5.5rem;
   z-index: 999999;
   background: linear-gradient(135deg, #6366f1, #8b5cf6);
   color: #fff;
@@ -128,7 +128,7 @@ body.theme-legacy .cursor-container {
 .scroll-to-top-btn {
   position: fixed;
   bottom: 2rem;
-  right: 5.5rem;
+  right: 2rem;
   z-index: 999998;
   width: 48px;
   height: 48px;
