@@ -5,6 +5,7 @@ require('dotenv').config();
 const Contact = require('./models/Contact');
 const Career = require('./models/Career');
 const Newsletter = require('./models/Newsletter');
+const Admin = require('./models/Admin');
 
 const app = express();
 
@@ -105,13 +106,34 @@ app.post('/api/newsletter', async (req, res) => {
 const jwt = require('jsonwebtoken');
 
 // Admin Login
-app.post('/api/admin/login', (req, res) => {
-  const { username, password } = req.body;
-  if (username === process.env.ADMIN_USERNAME && password === process.env.ADMIN_PASSWORD) {
-    const token = jwt.sign({ username }, process.env.JWT_SECRET || 'secret', { expiresIn: '1d' });
+app.post('/api/admin/login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    
+    if (!username || !password) {
+      return res.status(400).json({ success: false, message: 'Username and password are required' });
+    }
+
+    const admin = await Admin.findOne({ username });
+    if (!admin) {
+      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+    }
+
+    const isMatch = await admin.comparePassword(password);
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+    }
+
+    const token = jwt.sign(
+      { id: admin._id, username: admin.username, role: admin.role },
+      process.env.JWT_SECRET || 'secret',
+      { expiresIn: '1d' }
+    );
+
     res.json({ success: true, token });
-  } else {
-    res.status(401).json({ success: false, message: 'Invalid credentials' });
+  } catch (error) {
+    console.error('Admin login error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 

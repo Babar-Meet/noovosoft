@@ -1,18 +1,32 @@
 const request = require('supertest');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const app = require('../app');
+const mongoose = require('mongoose');
 
 jest.mock('mongoose', () => {
   const original = jest.requireActual('mongoose');
   
   const MockModel = jest.fn(function(doc) {
     Object.assign(this, doc);
+    this.save = jest.fn().mockResolvedValue();
+    this.comparePassword = jest.fn().mockResolvedValue(true);
   });
-  
+
   MockModel.find = jest.fn().mockReturnThis();
   MockModel.sort = jest.fn().mockResolvedValue([]);
-  MockModel.findOne = jest.fn().mockResolvedValue(null);
+  MockModel.findOne = jest.fn().mockResolvedValue({
+    _id: '507f191e810c19729de860ea',
+    username: process.env.ADMIN_USERNAME || 'admin@noovosoft',
+    password: '$2a$12$hashedpassword',
+    role: 'admin',
+    comparePassword: jest.fn().mockResolvedValue(true),
+    save: jest.fn().mockResolvedValue(),
+  });
   MockModel.prototype.save = jest.fn().mockResolvedValue();
+  MockModel.prototype.comparePassword = jest.fn().mockResolvedValue(true);
+  
+  MockModel.findOne.mockResolvedValue(null);
   
   return {
     ...original,
@@ -24,14 +38,29 @@ jest.mock('mongoose', () => {
   };
 });
 
+const getMockAdmin = () => ({
+  _id: '507f191e810c19729de860ea',
+  username: process.env.ADMIN_USERNAME || 'admin@noovosoft',
+  password: '$2a$12$hashedpassword',
+  role: 'admin',
+  comparePassword: jest.fn().mockResolvedValue(true),
+  save: jest.fn().mockResolvedValue(),
+});
+
+beforeEach(() => {
+  mongoose.model().findOne.mockResolvedValue(null);
+});
+
 describe('Admin Authentication Tests', () => {
   describe('POST /api/admin/login', () => {
     test('should login successfully with valid credentials', async () => {
+      mongoose.model().findOne.mockResolvedValueOnce(getMockAdmin());
+
       const res = await request(app)
         .post('/api/admin/login')
         .send({
-          username: 'testadmin',
-          password: 'testpassword123',
+          username: process.env.ADMIN_USERNAME,
+          password: process.env.ADMIN_PASSWORD,
         });
 
       expect(res.statusCode).toBe(200);
@@ -40,11 +69,13 @@ describe('Admin Authentication Tests', () => {
     });
 
     test('should reject login with invalid username', async () => {
+      mongoose.model().findOne.mockResolvedValueOnce(null);
+
       const res = await request(app)
         .post('/api/admin/login')
         .send({
           username: 'wronguser',
-          password: 'testpassword123',
+          password: process.env.ADMIN_PASSWORD,
         });
 
       expect(res.statusCode).toBe(401);
@@ -53,10 +84,20 @@ describe('Admin Authentication Tests', () => {
     });
 
     test('should reject login with invalid password', async () => {
+      const wrongPasswordAdmin = {
+        _id: '507f191e810c19729de860ea',
+        username: process.env.ADMIN_USERNAME,
+        password: '$2a$12$hashedpassword',
+        role: 'admin',
+        comparePassword: jest.fn().mockResolvedValue(false),
+        save: jest.fn().mockResolvedValue(),
+      };
+      mongoose.model().findOne.mockResolvedValueOnce(wrongPasswordAdmin);
+
       const res = await request(app)
         .post('/api/admin/login')
         .send({
-          username: 'testadmin',
+          username: process.env.ADMIN_USERNAME,
           password: 'wrongpassword',
         });
 
@@ -69,10 +110,10 @@ describe('Admin Authentication Tests', () => {
       const res = await request(app)
         .post('/api/admin/login')
         .send({
-          password: 'testpassword123',
+          password: process.env.ADMIN_PASSWORD,
         });
 
-      expect(res.statusCode).toBe(401);
+      expect(res.statusCode).toBe(400);
       expect(res.body.success).toBe(false);
     });
 
@@ -80,10 +121,10 @@ describe('Admin Authentication Tests', () => {
       const res = await request(app)
         .post('/api/admin/login')
         .send({
-          username: 'testadmin',
+          username: process.env.ADMIN_USERNAME,
         });
 
-      expect(res.statusCode).toBe(401);
+      expect(res.statusCode).toBe(400);
       expect(res.body.success).toBe(false);
     });
 
@@ -92,20 +133,23 @@ describe('Admin Authentication Tests', () => {
         .post('/api/admin/login')
         .send({});
 
-      expect(res.statusCode).toBe(401);
+      expect(res.statusCode).toBe(400);
       expect(res.body.success).toBe(false);
     });
 
     test('should return JWT token with correct structure', async () => {
+      mongoose.model().findOne.mockResolvedValueOnce(getMockAdmin());
+
       const res = await request(app)
         .post('/api/admin/login')
         .send({
-          username: 'testadmin',
-          password: 'testpassword123',
+          username: process.env.ADMIN_USERNAME,
+          password: process.env.ADMIN_PASSWORD,
         });
 
       const decoded = jwt.verify(res.body.token, 'testjwtsecretkey');
-      expect(decoded.username).toBe('testadmin');
+      expect(decoded.username).toBe(process.env.ADMIN_USERNAME);
+      expect(decoded.role).toBe('admin');
       expect(decoded.exp).toBeDefined();
     });
   });
@@ -114,7 +158,7 @@ describe('Admin Authentication Tests', () => {
     let validToken;
 
     beforeAll(() => {
-      validToken = jwt.sign({ username: 'testadmin' }, 'testjwtsecretkey', { expiresIn: '1d' });
+      validToken = jwt.sign({ username: process.env.ADMIN_USERNAME, role: 'admin' }, 'testjwtsecretkey', { expiresIn: '1d' });
     });
 
     test('should access protected route with valid token', async () => {
@@ -151,7 +195,7 @@ describe('Admin Authentication Tests', () => {
     });
 
     test('should reject access with expired token', async () => {
-      const expiredToken = jwt.sign({ username: 'testadmin' }, 'testjwtsecretkey', { expiresIn: '0s' });
+      const expiredToken = jwt.sign({ username: 'admin@noovosoft' }, 'testjwtsecretkey', { expiresIn: '0s' });
       
       const res = await request(app)
         .get('/api/admin/contacts')
@@ -162,7 +206,7 @@ describe('Admin Authentication Tests', () => {
     });
 
     test('should reject access with token signed with wrong secret', async () => {
-      const wrongSecretToken = jwt.sign({ username: 'testadmin' }, 'wrongsecret', { expiresIn: '1d' });
+      const wrongSecretToken = jwt.sign({ username: 'admin@noovosoft' }, 'wrongsecret', { expiresIn: '1d' });
       
       const res = await request(app)
         .get('/api/admin/contacts')
@@ -193,7 +237,7 @@ describe('Contact Form Tests', () => {
   let validToken;
 
   beforeAll(() => {
-    validToken = jwt.sign({ username: 'testadmin' }, 'testjwtsecretkey', { expiresIn: '1d' });
+    validToken = jwt.sign({ username: process.env.ADMIN_USERNAME, role: 'admin' }, 'testjwtsecretkey', { expiresIn: '1d' });
   });
 
   describe('POST /api/contact', () => {
@@ -306,7 +350,7 @@ describe('Career Application Tests', () => {
   let validToken;
 
   beforeAll(() => {
-    validToken = jwt.sign({ username: 'testadmin' }, 'testjwtsecretkey', { expiresIn: '1d' });
+    validToken = jwt.sign({ username: process.env.ADMIN_USERNAME, role: 'admin' }, 'testjwtsecretkey', { expiresIn: '1d' });
   });
 
   describe('POST /api/career/apply', () => {
@@ -412,7 +456,7 @@ describe('Newsletter Subscription Tests', () => {
   let validToken;
 
   beforeAll(() => {
-    validToken = jwt.sign({ username: 'testadmin' }, 'testjwtsecretkey', { expiresIn: '1d' });
+    validToken = jwt.sign({ username: process.env.ADMIN_USERNAME, role: 'admin' }, 'testjwtsecretkey', { expiresIn: '1d' });
   });
 
   describe('POST /api/newsletter', () => {
@@ -481,12 +525,14 @@ describe('Security Tests', () => {
   let validToken;
 
   beforeAll(() => {
-    validToken = jwt.sign({ username: 'testadmin' }, 'testjwtsecretkey', { expiresIn: '1d' });
+    validToken = jwt.sign({ username: process.env.ADMIN_USERNAME, role: 'admin' }, 'testjwtsecretkey', { expiresIn: '1d' });
   });
 
   describe('Rate Limiting & Brute Force Protection', () => {
     test('should allow multiple login attempts (no rate limiting implemented)', async () => {
       for (let i = 0; i < 20; i++) {
+        mongoose.model().findOne.mockResolvedValueOnce(null);
+
         const res = await request(app)
           .post('/api/admin/login')
           .send({
@@ -501,21 +547,33 @@ describe('Security Tests', () => {
 
   describe('SQL Injection Protection', () => {
     test('should handle SQL injection attempt in username', async () => {
+      mongoose.model().findOne.mockResolvedValueOnce(null);
+
       const res = await request(app)
         .post('/api/admin/login')
         .send({
           username: "admin' OR '1'='1",
-          password: 'testpassword123',
+          password: process.env.ADMIN_PASSWORD,
         });
 
       expect(res.statusCode).toBe(401);
     });
 
     test('should handle SQL injection attempt in password', async () => {
+      const wrongPasswordAdmin = {
+        _id: '507f191e810c19729de860ea',
+        username: process.env.ADMIN_USERNAME,
+        password: '$2a$12$hashedpassword',
+        role: 'admin',
+        comparePassword: jest.fn().mockResolvedValue(false),
+        save: jest.fn().mockResolvedValue(),
+      };
+      mongoose.model().findOne.mockResolvedValueOnce(wrongPasswordAdmin);
+
       const res = await request(app)
         .post('/api/admin/login')
         .send({
-          username: 'testadmin',
+          username: process.env.ADMIN_USERNAME,
           password: "' OR '1'='1",
         });
 
@@ -523,6 +581,8 @@ describe('Security Tests', () => {
     });
 
     test('should handle NoSQL injection attempt', async () => {
+      mongoose.model().findOne.mockResolvedValueOnce(null);
+
       const res = await request(app)
         .post('/api/admin/login')
         .send({
@@ -599,9 +659,9 @@ describe('Security Tests', () => {
     });
 
     test('should reject token with modified payload', async () => {
-      const token = jwt.sign({ username: 'testadmin', role: 'user' }, 'testjwtsecretkey', { expiresIn: '1d' });
+      const token = jwt.sign({ username: 'admin@noovosoft', role: 'user' }, 'testjwtsecretkey', { expiresIn: '1d' });
       const parts = token.split('.');
-      const modifiedPayload = Buffer.from(JSON.stringify({ username: 'testadmin', role: 'admin' })).toString('base64');
+      const modifiedPayload = Buffer.from(JSON.stringify({ username: 'admin@noovosoft', role: 'admin' })).toString('base64');
       const tamperedToken = `${parts[0]}.${modifiedPayload}.${parts[2]}`;
 
       const res = await request(app)
@@ -645,11 +705,13 @@ describe('Security Tests', () => {
 
   describe('HTTP Method Security', () => {
     test('should reject PUT on login endpoint', async () => {
+      mongoose.model().findOne.mockResolvedValueOnce(getMockAdmin());
+
       const res = await request(app)
         .put('/api/admin/login')
         .send({
-          username: 'testadmin',
-          password: 'testpassword123',
+          username: process.env.ADMIN_USERNAME,
+          password: process.env.ADMIN_PASSWORD,
         });
 
       expect(res.statusCode).toBe(404);
@@ -713,11 +775,13 @@ describe('Health Check & General Tests', () => {
 describe('Integration Tests', () => {
   describe('Full Admin Workflow', () => {
     test('should complete full admin workflow: login -> access contacts -> access careers -> access newsletters', async () => {
+      mongoose.model().findOne.mockResolvedValueOnce(getMockAdmin());
+
       const loginRes = await request(app)
         .post('/api/admin/login')
         .send({
-          username: 'testadmin',
-          password: 'testpassword123',
+          username: process.env.ADMIN_USERNAME,
+          password: process.env.ADMIN_PASSWORD,
         });
 
       expect(loginRes.statusCode).toBe(200);
@@ -745,11 +809,13 @@ describe('Integration Tests', () => {
 
   describe('Token Expiration', () => {
     test('should issue token with 1 day expiration', async () => {
+      mongoose.model().findOne.mockResolvedValueOnce(getMockAdmin());
+
       const loginRes = await request(app)
         .post('/api/admin/login')
         .send({
-          username: 'testadmin',
-          password: 'testpassword123',
+          username: process.env.ADMIN_USERNAME,
+          password: process.env.ADMIN_PASSWORD,
         });
 
       const decoded = jwt.verify(loginRes.body.token, 'testjwtsecretkey');

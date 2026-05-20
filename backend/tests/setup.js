@@ -1,6 +1,6 @@
 process.env.NODE_ENV = 'test';
-process.env.ADMIN_USERNAME = 'testadmin';
-process.env.ADMIN_PASSWORD = 'testpassword123';
+process.env.ADMIN_USERNAME = 'admin@noovosoft';
+process.env.ADMIN_PASSWORD = 'Noovo@2026!';
 process.env.JWT_SECRET = 'testjwtsecretkey';
 process.env.MONGO_URI = 'mongodb://localhost:27017/testdb';
 
